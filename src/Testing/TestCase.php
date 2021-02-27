@@ -581,7 +581,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 		return new TypeAliasResolver(
 			$globalTypeAliases,
 			$container->getByType(TypeStringResolver::class),
-			$reflectionProvider,
+			$reflectionProvider
 		);
 	}
 
