@@ -12,6 +12,7 @@ use PHPStan\PhpDoc\Tag\MethodTag;
 use PHPStan\PhpDoc\Tag\MixinTag;
 use PHPStan\PhpDoc\Tag\PropertyTag;
 use PHPStan\PhpDoc\Tag\TemplateTag;
+use PHPStan\PhpDoc\Tag\TypeAliasTag;
 use PHPStan\Reflection\Php\PhpClassReflectionExtension;
 use PHPStan\Reflection\Php\PhpPropertyReflection;
 use PHPStan\Type\ErrorType;
@@ -91,6 +92,9 @@ class ClassReflection implements ReflectionWithFilename
 
 	/** @var string|false|null */
 	private $reflectionDocComment;
+
+	/** @var array<string, string>|null */
+	private ?array $typeAliases = null;
 
 	/**
 	 * @param \PHPStan\Reflection\ReflectionProvider $reflectionProvider
@@ -731,6 +735,22 @@ class ClassReflection implements ReflectionWithFilename
 		}
 
 		return $traitNames;
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	public function getTypeAliases(): array
+	{
+		if ($this->typeAliases === null) {
+			$resolvedPhpDoc = $this->getResolvedPhpDoc();
+			$typeAliasTags = $resolvedPhpDoc !== null ? $resolvedPhpDoc->getTypeAliasTags() : [];
+			$this->typeAliases = array_map(function (TypeAliasTag $typeAliasTag): string {
+				return $typeAliasTag->getType();
+			}, $typeAliasTags);
+		}
+
+		return $this->typeAliases;
 	}
 
 	public function getDeprecatedDescription(): ?string
