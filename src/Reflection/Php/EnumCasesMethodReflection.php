@@ -10,6 +10,7 @@ use PHPStan\Reflection\FunctionVariantWithPhpDocs;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 
@@ -71,6 +72,7 @@ class EnumCasesMethodReflection implements ExtendedMethodReflection
 				$this->returnType,
 				new MixedType(),
 				$this->returnType,
+				TemplateTypeVarianceMap::createEmpty(),
 			),
 		];
 	}

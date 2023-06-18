@@ -15,6 +15,7 @@ use PHPStan\Reflection\Native\NativeParameterWithPhpDocsReflection;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\FileTypeMapper;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypehintHelper;
@@ -117,6 +118,7 @@ class NativeFunctionReflectionProvider
 				TypehintHelper::decideType($functionSignature->getReturnType(), $phpDocReturnType),
 				$phpDocReturnType ?? new MixedType(),
 				$functionSignature->getReturnType(),
+				TemplateTypeVarianceMap::createEmpty(),
 			);
 		}
 

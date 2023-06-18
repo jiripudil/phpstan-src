@@ -21,6 +21,7 @@ use PHPStan\Type\Constant\ConstantIntegerType;
 use PHPStan\Type\ErrorType;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\IntegerType;
 use PHPStan\Type\LateResolvableType;
 use PHPStan\Type\MixedType;
@@ -110,6 +111,7 @@ class ParametersAcceptorSelector
 						$parameters,
 						$acceptor->isVariadic(),
 						$acceptor->getReturnType(),
+						$acceptor->getResolvedTemplateTypeVarianceMap(),
 					),
 				];
 			}
@@ -139,6 +141,7 @@ class ParametersAcceptorSelector
 								$parameters,
 								$acceptor->isVariadic(),
 								$acceptor->getReturnType(),
+								$acceptor->getResolvedTemplateTypeVarianceMap(),
 							),
 						];
 					}
@@ -185,6 +188,7 @@ class ParametersAcceptorSelector
 						$parameters,
 						$acceptor->isVariadic(),
 						$acceptor->getReturnType(),
+						$acceptor->getResolvedTemplateTypeVarianceMap(),
 					),
 				];
 			}
@@ -215,6 +219,7 @@ class ParametersAcceptorSelector
 						$parameters,
 						$acceptor->isVariadic(),
 						$acceptor->getReturnType(),
+						$acceptor->getResolvedTemplateTypeVarianceMap(),
 					),
 				];
 			}
@@ -513,6 +518,7 @@ class ParametersAcceptorSelector
 			$returnType,
 			$phpDocReturnType ?? $returnType,
 			$nativeReturnType ?? new MixedType(),
+			TemplateTypeVarianceMap::createEmpty(),
 		);
 	}
 
@@ -530,6 +536,7 @@ class ParametersAcceptorSelector
 			$acceptor->getReturnType(),
 			$acceptor->getReturnType(),
 			new MixedType(),
+			$acceptor->getResolvedTemplateTypeVarianceMap(),
 		);
 	}
 

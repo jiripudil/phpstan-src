@@ -30,6 +30,8 @@ use PHPStan\Type\Constant\ConstantIntegerType;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVariance;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\Traits\NonArrayTypeTrait;
 use PHPStan\Type\Traits\NonGeneralizableTypeTrait;
 use PHPStan\Type\Traits\NonGenericTypeTrait;
@@ -59,6 +61,8 @@ class ClosureType implements TypeWithClassName, ParametersAcceptor
 
 	private TemplateTypeMap $resolvedTemplateTypeMap;
 
+	private TemplateTypeVarianceMap $resolvedTemplateTypeVarianceMap;
+
 	/**
 	 * @api
 	 * @param array<int, ParameterReflection> $parameters
@@ -69,11 +73,13 @@ class ClosureType implements TypeWithClassName, ParametersAcceptor
 		private bool $variadic,
 		?TemplateTypeMap $templateTypeMap = null,
 		?TemplateTypeMap $resolvedTemplateTypeMap = null,
+		?TemplateTypeVarianceMap $resolvedTemplateTypeVarianceMap = null,
 	)
 	{
 		$this->objectType = new ObjectType(Closure::class);
 		$this->templateTypeMap = $templateTypeMap ?? TemplateTypeMap::createEmpty();
 		$this->resolvedTemplateTypeMap = $resolvedTemplateTypeMap ?? TemplateTypeMap::createEmpty();
+		$this->resolvedTemplateTypeVarianceMap = $resolvedTemplateTypeVarianceMap ?? TemplateTypeVarianceMap::createEmpty();
 	}
 
 	public function getClassName(): string
@@ -186,6 +192,7 @@ class ClosureType implements TypeWithClassName, ParametersAcceptor
 					$this->variadic,
 					$this->templateTypeMap,
 					$this->resolvedTemplateTypeMap,
+					$this->resolvedTemplateTypeVarianceMap,
 				);
 
 				return $printer->print($selfWithoutParameterNames->toPhpDocNode());
@@ -359,6 +366,11 @@ class ClosureType implements TypeWithClassName, ParametersAcceptor
 		return $this->resolvedTemplateTypeMap;
 	}
 
+	public function getResolvedTemplateTypeVarianceMap(): TemplateTypeVarianceMap
+	{
+		return $this->resolvedTemplateTypeVarianceMap;
+	}
+
 	/**
 	 * @return array<int, ParameterReflection>
 	 */
@@ -438,6 +450,7 @@ class ClosureType implements TypeWithClassName, ParametersAcceptor
 			$this->isVariadic(),
 			$this->templateTypeMap,
 			$this->resolvedTemplateTypeMap,
+			$this->resolvedTemplateTypeVarianceMap,
 		);
 	}
 
@@ -475,6 +488,30 @@ class ClosureType implements TypeWithClassName, ParametersAcceptor
 			$parameters,
 			$cb($this->getReturnType(), $right->getReturnType()),
 			$this->isVariadic(),
+		);
+	}
+
+	public function traverseWithVariance(TemplateTypeVariance $variance, callable $cb): Type
+	{
+		$parameterVariance = $variance->compose(TemplateTypeVariance::createContravariant());
+
+		return new self(
+			array_map(static function (ParameterReflection $param) use ($cb, $parameterVariance): NativeParameterReflection {
+				$defaultValue = $param->getDefaultValue();
+				return new NativeParameterReflection(
+					$param->getName(),
+					$param->isOptional(),
+					$cb($param->getType(), $parameterVariance),
+					$param->passedByReference(),
+					$param->isVariadic(),
+					$defaultValue !== null ? $cb($defaultValue, $parameterVariance) : null,
+				);
+			}, $this->getParameters()),
+			$cb($this->getReturnType(), $variance->compose(TemplateTypeVariance::createCovariant())),
+			$this->isVariadic(),
+			$this->templateTypeMap,
+			$this->resolvedTemplateTypeMap,
+			$this->resolvedTemplateTypeVarianceMap,
 		);
 	}
 
@@ -624,6 +661,7 @@ class ClosureType implements TypeWithClassName, ParametersAcceptor
 			$properties['variadic'],
 			$properties['templateTypeMap'],
 			$properties['resolvedTemplateTypeMap'],
+			$properties['resolvedTemplateTypeVarianceMap'],
 		);
 	}
 

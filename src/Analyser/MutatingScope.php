@@ -2110,6 +2110,7 @@ class MutatingScope implements Scope
 				$variant->isVariadic(),
 				$variant->getTemplateTypeMap(),
 				$variant->getResolvedTemplateTypeMap(),
+				$variant->getResolvedTemplateTypeVarianceMap(),
 			);
 		}
 

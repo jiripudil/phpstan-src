@@ -702,6 +702,20 @@ class ArrayType implements Type
 		return $this;
 	}
 
+	public function traverseWithVariance(TemplateTypeVariance $variance, callable $cb): Type
+	{
+		$composedVariance = $variance->compose(TemplateTypeVariance::createCovariant());
+
+		$newKeyType = $cb($this->keyType, $composedVariance);
+		$newItemType = $cb($this->itemType, $composedVariance);
+
+		if ($newKeyType === $this->keyType && $newItemType === $this->itemType) {
+			return $this;
+		}
+
+		return new self($newKeyType, $newItemType);
+	}
+
 	public function tryRemove(Type $typeToRemove): ?Type
 	{
 		if ($typeToRemove->isConstantArray()->yes() && $typeToRemove->isIterableAtLeastOnce()->no()) {

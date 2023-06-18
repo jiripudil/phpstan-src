@@ -16,6 +16,7 @@ use PHPStan\Reflection\PassedByReference;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypehintHelper;
@@ -104,6 +105,7 @@ class PhpFunctionFromParserNodeReflection implements FunctionReflection
 					$this->getReturnType(),
 					$this->phpDocReturnType ?? new MixedType(),
 					$this->realReturnType,
+					TemplateTypeVarianceMap::createEmpty(),
 				),
 			];
 		}

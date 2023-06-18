@@ -8,6 +8,7 @@ use PHPStan\Reflection\FunctionVariant;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\Type;
 use PHPStan\Type\VoidType;
 
@@ -57,6 +58,7 @@ class DummyConstructorReflection implements MethodReflection
 				[],
 				false,
 				new VoidType(),
+				TemplateTypeVarianceMap::createEmpty(),
 			),
 		];
 	}

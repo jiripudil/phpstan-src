@@ -56,10 +56,12 @@ class CalledOnTypeUnresolvedMethodPrototypeReflection implements UnresolvedMetho
 			return $this->transformedMethod;
 		}
 		$templateTypeMap = $this->resolvedDeclaringClass->getActiveTemplateTypeMap();
+		$templateTypeVarianceMap = $this->resolvedDeclaringClass->getActiveTemplateTypeVarianceMap();
 
 		return $this->transformedMethod = new ResolvedMethodReflection(
 			$this->transformMethodWithStaticType($this->resolvedDeclaringClass, $this->methodReflection),
 			$this->resolveTemplateTypeMapToBounds ? $templateTypeMap->resolveToBounds() : $templateTypeMap,
+			$templateTypeVarianceMap,
 		);
 	}
 
@@ -96,6 +98,7 @@ class CalledOnTypeUnresolvedMethodPrototypeReflection implements UnresolvedMetho
 			$this->transformStaticType($acceptor->getReturnType()),
 			$this->transformStaticType($acceptor->getPhpDocReturnType()),
 			$this->transformStaticType($acceptor->getNativeReturnType()),
+			$acceptor->getResolvedTemplateTypeVarianceMap(),
 		), $method->getVariants());
 
 		return new ChangedTypeMethodReflection($declaringClass, $method, $variants);

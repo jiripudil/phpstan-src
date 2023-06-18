@@ -104,6 +104,7 @@ class RuleLevelHelper
 					$acceptedType->isVariadic(),
 					$acceptedType->getTemplateTypeMap(),
 					$acceptedType->getResolvedTemplateTypeMap(),
+					$acceptedType->getResolvedTemplateTypeVarianceMap(),
 				);
 			}
 

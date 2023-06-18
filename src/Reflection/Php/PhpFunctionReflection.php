@@ -21,6 +21,7 @@ use PHPStan\Reflection\ParametersAcceptor;
 use PHPStan\Reflection\ParametersAcceptorWithPhpDocs;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypehintHelper;
@@ -96,6 +97,7 @@ class PhpFunctionReflection implements FunctionReflection
 					$this->getReturnType(),
 					$this->getPhpDocReturnType(),
 					$this->getNativeReturnType(),
+					TemplateTypeVarianceMap::createEmpty(),
 				),
 			];
 		}

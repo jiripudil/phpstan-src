@@ -9,6 +9,7 @@ use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\FunctionVariantWithPhpDocs;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 
@@ -75,6 +76,7 @@ class AnnotationMethodReflection implements ExtendedMethodReflection
 					$this->returnType,
 					$this->returnType,
 					new MixedType(),
+					TemplateTypeVarianceMap::createEmpty(),
 				),
 			];
 		}

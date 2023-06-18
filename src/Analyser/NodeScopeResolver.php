@@ -137,6 +137,7 @@ use PHPStan\Type\FileTypeMapper;
 use PHPStan\Type\GeneralizePrecision;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVariance;
 use PHPStan\Type\IntegerType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\NeverType;
@@ -2132,7 +2133,12 @@ class NodeScopeResolver
 				if ($parametersAcceptor !== null) {
 					$selfOutType = $methodReflection->getSelfOutType();
 					if ($selfOutType !== null) {
-						$scope = $scope->assignExpression($expr->var, TemplateTypeHelper::resolveTemplateTypes($selfOutType, $parametersAcceptor->getResolvedTemplateTypeMap()), $scope->getNativeType($expr->var));
+						$scope = $scope->assignExpression($expr->var, TemplateTypeHelper::resolveTemplateTypes(
+							$selfOutType,
+							$parametersAcceptor->getResolvedTemplateTypeMap(),
+							$parametersAcceptor->getResolvedTemplateTypeVarianceMap(),
+							TemplateTypeVariance::createCovariant(),
+						), $scope->getNativeType($expr->var));
 					}
 				}
 			} else {
@@ -3478,7 +3484,12 @@ class NodeScopeResolver
 					continue;
 				}
 
-				$paramOutTypes[$parameter->getName()] = TemplateTypeHelper::resolveTemplateTypes($parameter->getOutType(), $parametersAcceptor->getResolvedTemplateTypeMap());
+				$paramOutTypes[$parameter->getName()] = TemplateTypeHelper::resolveTemplateTypes(
+					$parameter->getOutType(),
+					$parametersAcceptor->getResolvedTemplateTypeMap(),
+					$parametersAcceptor->getResolvedTemplateTypeVarianceMap(),
+					TemplateTypeVariance::createCovariant(),
+				);
 			}
 		}
 

@@ -43,6 +43,8 @@ use PHPStan\Type\FileTypeMapper;
 use PHPStan\Type\GeneralizePrecision;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVariance;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\NeverType;
 use PHPStan\Type\Type;
@@ -293,6 +295,8 @@ class PhpClassReflectionExtension
 			$phpDocType = $phpDocType !== null ? TemplateTypeHelper::resolveTemplateTypes(
 				$phpDocType,
 				$phpDocBlockClassReflection->getActiveTemplateTypeMap(),
+				$phpDocBlockClassReflection->getActiveTemplateTypeVarianceMap(),
+				TemplateTypeVariance::createInvariant(),
 			) : null;
 			$deprecatedDescription = $resolvedPhpDoc->getDeprecatedTag() !== null ? $resolvedPhpDoc->getDeprecatedTag()->getMessage() : null;
 			$isDeprecated = $resolvedPhpDoc->isDeprecated();
@@ -525,11 +529,14 @@ class PhpClassReflectionExtension
 					if ($stubPhpDocPair !== null) {
 						[$stubPhpDoc, $stubDeclaringClass] = $stubPhpDocPair;
 						$templateTypeMap = $stubDeclaringClass->getActiveTemplateTypeMap();
+						$templateTypeVarianceMap = $stubDeclaringClass->getActiveTemplateTypeVarianceMap();
 						$returnTag = $stubPhpDoc->getReturnTag();
 						if ($returnTag !== null) {
 							$stubPhpDocReturnType = TemplateTypeHelper::resolveTemplateTypes(
 								$returnTag->getType(),
 								$templateTypeMap,
+								$templateTypeVarianceMap,
+								TemplateTypeVariance::createCovariant(),
 							);
 						}
 
@@ -537,6 +544,8 @@ class PhpClassReflectionExtension
 							$stubPhpDocParameterTypes[$name] = TemplateTypeHelper::resolveTemplateTypes(
 								$paramTag->getType(),
 								$templateTypeMap,
+								$templateTypeVarianceMap,
+								TemplateTypeVariance::createContravariant(),
 							);
 							$stubPhpDocParameterVariadicity[$name] = $paramTag->isVariadic();
 						}
@@ -557,6 +566,8 @@ class PhpClassReflectionExtension
 							$stubPhpParameterOutTypes[$name] = TemplateTypeHelper::resolveTemplateTypes(
 								$paramOutTag->getType(),
 								$templateTypeMap,
+								$templateTypeVarianceMap,
+								TemplateTypeVariance::createCovariant(),
 							);
 						}
 
@@ -735,6 +746,8 @@ class PhpClassReflectionExtension
 			$phpDocParameterTypes[$paramName] = TemplateTypeHelper::resolveTemplateTypes(
 				$paramType,
 				$phpDocBlockClassReflection->getActiveTemplateTypeMap(),
+				$phpDocBlockClassReflection->getActiveTemplateTypeVarianceMap(),
+				TemplateTypeVariance::createContravariant(),
 			);
 		}
 
@@ -743,6 +756,8 @@ class PhpClassReflectionExtension
 			$phpDocParameterOutTypes[$paramName] = TemplateTypeHelper::resolveTemplateTypes(
 				$paramOutTag->getType(),
 				$phpDocBlockClassReflection->getActiveTemplateTypeMap(),
+				$phpDocBlockClassReflection->getActiveTemplateTypeVarianceMap(),
+				TemplateTypeVariance::createCovariant(),
 			);
 		}
 
@@ -853,6 +868,7 @@ class PhpClassReflectionExtension
 			$returnType ?? $methodSignature->getReturnType(),
 			$phpDocReturnType ?? new MixedType(),
 			$methodSignature->getNativeReturnType(),
+			TemplateTypeVarianceMap::createEmpty(),
 		);
 	}
 
@@ -1069,6 +1085,8 @@ class PhpClassReflectionExtension
 		$phpDocReturnType = TemplateTypeHelper::resolveTemplateTypes(
 			$phpDocReturnType,
 			$phpDocBlockClassReflection->getActiveTemplateTypeMap(),
+			$phpDocBlockClassReflection->getActiveTemplateTypeVarianceMap(),
+			TemplateTypeVariance::createCovariant(),
 		);
 
 		if ($returnTag->isExplicit() || $nativeReturnType->isSuperTypeOf($phpDocReturnType)->yes()) {

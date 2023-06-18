@@ -8,6 +8,7 @@ use PHPStan\Reflection\FunctionVariant;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\TemplateTypeMap;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
@@ -63,6 +64,7 @@ class SoapClientMethodReflection implements MethodReflection
 				[],
 				true,
 				new MixedType(true),
+				TemplateTypeVarianceMap::createEmpty(),
 			),
 		];
 	}

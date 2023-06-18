@@ -21,6 +21,7 @@ use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\Generic\TemplateTypeMap;
 use PHPStan\Type\Generic\TemplateTypeVariance;
+use PHPStan\Type\Generic\TemplateTypeVarianceMap;
 use PHPStan\Type\Traits\MaybeArrayTypeTrait;
 use PHPStan\Type\Traits\MaybeIterableTypeTrait;
 use PHPStan\Type\Traits\MaybeObjectTypeTrait;
@@ -250,6 +251,11 @@ class CallableType implements CompoundType, ParametersAcceptor
 		return TemplateTypeMap::createEmpty();
 	}
 
+	public function getResolvedTemplateTypeVarianceMap(): TemplateTypeVarianceMap
+	{
+		return TemplateTypeVarianceMap::createEmpty();
+	}
+
 	/**
 	 * @return array<int, ParameterReflection>
 	 */
@@ -395,6 +401,32 @@ class CallableType implements CompoundType, ParametersAcceptor
 		return new self(
 			$parameters,
 			$cb($this->getReturnType(), $rightAcceptors[0]->getReturnType()),
+			$this->isVariadic(),
+		);
+	}
+
+	public function traverseWithVariance(TemplateTypeVariance $variance, callable $cb): Type
+	{
+		if ($this->isCommonCallable) {
+			return $this;
+		}
+
+		$parameterVariance = $variance->compose(TemplateTypeVariance::createContravariant());
+		$parameters = array_map(static function (ParameterReflection $param) use ($cb, $parameterVariance): NativeParameterReflection {
+			$defaultValue = $param->getDefaultValue();
+			return new NativeParameterReflection(
+				$param->getName(),
+				$param->isOptional(),
+				$cb($param->getType(), $parameterVariance),
+				$param->passedByReference(),
+				$param->isVariadic(),
+				$defaultValue !== null ? $cb($defaultValue, $parameterVariance) : null,
+			);
+		}, $this->getParameters());
+
+		return new self(
+			$parameters,
+			$cb($this->getReturnType(), $variance->compose(TemplateTypeVariance::createCovariant())),
 			$this->isVariadic(),
 		);
 	}
